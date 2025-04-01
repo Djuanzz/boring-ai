@@ -2,26 +2,35 @@ package main
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/Djuanzz/boring-ai/config"
+	"github.com/Djuanzz/boring-ai/controllers"
+	"github.com/Djuanzz/boring-ai/middleware"
+	"github.com/Djuanzz/boring-ai/routes"
+	"github.com/Djuanzz/boring-ai/services"
 	"github.com/gin-gonic/gin"
-	_ "github.com/joho/godotenv/autoload"
+)
+
+var (
+	healthService services.HealthService = services.NewHealthService()
+
+	healthController controllers.HealthController = controllers.NewHealthController(healthService)
 )
 
 func main() {
 	fmt.Println("Boring AI")
 
+	cfg := config.LoadEnv()
+
 	server := gin.Default()
+	server.Use(middleware.CORSMiddleware())
 
-	port := os.Getenv("SERVER_PORT")
-	if port == "" {
-		port = "5000"
-	}
+	routes.Health(server, healthController)
 
-	if err := server.Run(":" + port); err != nil {
+	if err := server.Run(":" + cfg.Port); err != nil {
 		fmt.Println("Error starting server:", err)
 		panic(err.Error())
 	}
 
-	fmt.Println("Server started on port", port)
+	fmt.Println("Server starting on port", cfg.Port)
 }
