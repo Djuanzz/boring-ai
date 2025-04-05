@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/Djuanzz/boring-ai/dto"
 	"github.com/Djuanzz/boring-ai/services"
 	"github.com/Djuanzz/boring-ai/utils"
 	"github.com/gin-gonic/gin"
@@ -11,6 +10,8 @@ import (
 
 type HealthController interface {
 	CheckPing(ctx *gin.Context)
+	CheckResponseSuccess(ctx *gin.Context)
+	CheckResponseFailed(ctx *gin.Context)
 }
 
 type healthController struct {
@@ -24,14 +25,52 @@ func NewHealthController(hs services.HealthService) HealthController {
 }
 
 func (h *healthController) CheckPing(ctx *gin.Context) {
-	ping, err := h.healthService.CheckPing()
+	pingMsg, err := h.healthService.CheckPing()
 
 	if err != nil {
-		res := utils.ResponseFailed(dto.MSG_PING_FAILED, err)
+		res := utils.ResponseFailed(nil, err.Error())
 		ctx.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.ResponseSuccess(dto.MSG_PING_SUCCESS, ping)
+	result := map[string]any{
+		"message": pingMsg,
+	}
+
+	res := utils.ResponseSuccess(nil, result, nil)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *healthController) CheckResponseSuccess(ctx *gin.Context) {
+	pingMsg, err := h.healthService.CheckResponseSuccess()
+
+	if err != nil {
+		res := utils.ResponseFailed(nil, err.Error())
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	result := map[string]any{
+		"message": pingMsg,
+	}
+
+	res := utils.ResponseSuccess(nil, result, nil)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *healthController) CheckResponseFailed(ctx *gin.Context) {
+	pingMsg, err := h.healthService.CheckResponseFailed()
+
+	if err != nil {
+		res := utils.ResponseFailed(nil, err.Error())
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	result := map[string]any{
+		"message": pingMsg,
+	}
+
+	res := utils.ResponseSuccess(nil, result, nil)
 	ctx.JSON(http.StatusOK, res)
 }

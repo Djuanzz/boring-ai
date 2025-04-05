@@ -9,5 +9,7 @@ func Health(r *gin.Engine, hc controllers.HealthController) {
 	routes := r.Group("/api/health")
 	{
 		routes.GET("/ping", hc.CheckPing)
+		routes.GET("/response/success", hc.CheckResponseSuccess)
+		routes.GET("/response/failed", hc.CheckResponseFailed)
 	}
 }
