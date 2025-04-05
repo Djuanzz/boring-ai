@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	healthService services.HealthService = services.NewHealthService()
+// healthService services.HealthService = services.NewHealthService()
 
-	healthController controllers.HealthController = controllers.NewHealthController(healthService)
+// healthController controllers.HealthController = controllers.NewHealthController(healthService)
 )
 
 func main() {
@@ -25,7 +25,14 @@ func main() {
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 
+	healthService := services.NewHealthService()
+	openAIService := services.NewOpenAIService(cfg)
+
+	healthController := controllers.NewHealthController(healthService)
+	openAIController := controllers.NewOpenAIController(openAIService)
+
 	routes.Health(server, healthController)
+	routes.OpenAIRoutes(server, openAIController)
 
 	if err := server.Run(":" + cfg.Port); err != nil {
 		fmt.Println("Error starting server:", err)
