@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Djuanzz/boring-ai/config"
 	"github.com/Djuanzz/boring-ai/controllers"
@@ -9,6 +10,7 @@ import (
 	"github.com/Djuanzz/boring-ai/routes"
 	"github.com/Djuanzz/boring-ai/services"
 	"github.com/gin-gonic/gin"
+	"googlemaps.github.io/maps"
 )
 
 var (
@@ -25,17 +27,26 @@ func main() {
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 
+	client, err := maps.NewClient(maps.WithAPIKey(cfg.GMapsKey))
+	if err != nil {
+		log.Fatalf("Failed to create maps client: %v", err)
+		panic(err)
+	}
+
 	healthService := services.NewHealthService()
 	openAIService := services.NewOpenAIService(cfg)
 	inputService := services.NewInputService()
+	searchService := services.NewSearchService(client)
 
 	healthController := controllers.NewHealthController(healthService)
 	openAIController := controllers.NewOpenAIController(openAIService)
 	inputController := controllers.NewInputController(inputService)
+	searchController := controllers.NewSearchController(searchService)
 
 	routes.Health(server, healthController)
 	routes.OpenAIRoutes(server, openAIController)
 	routes.Input(server, inputController)
+	routes.Search(server, searchController)
 
 	if err := server.Run(":" + cfg.Port); err != nil {
 		fmt.Println("Error starting server:", err)
