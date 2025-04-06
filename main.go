@@ -27,12 +27,15 @@ func main() {
 
 	healthService := services.NewHealthService()
 	openAIService := services.NewOpenAIService(cfg)
+	inputService := services.NewInputService()
 
 	healthController := controllers.NewHealthController(healthService)
 	openAIController := controllers.NewOpenAIController(openAIService)
+	inputController := controllers.NewInputController(inputService)
 
 	routes.Health(server, healthController)
 	routes.OpenAIRoutes(server, openAIController)
+	routes.Input(server, inputController)
 
 	if err := server.Run(":" + cfg.Port); err != nil {
 		fmt.Println("Error starting server:", err)
