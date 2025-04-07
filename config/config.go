@@ -10,6 +10,7 @@ type Config struct {
 	Port      string
 	OpenAIKey string
 	GMapsKey  string
+	SearchKey string
 }
 
 func LoadEnv() Config {
@@ -21,6 +22,7 @@ func LoadEnv() Config {
 		Port:      getEnv("SERVER_PORT", "5000"),
 		OpenAIKey: getEnv("OPENAI_KEY", ""),
 		GMapsKey:  getEnv("GMAPS_KEY", ""),
+		SearchKey: getEnv("SEARCH_KEY", ""),
 	}
 
 	return config
