@@ -37,16 +37,19 @@ func main() {
 	openAIService := services.NewOpenAIService(cfg)
 	inputService := services.NewInputService()
 	searchService := services.NewSearchService(client)
+	scrapeService := services.NewScrapeService(cfg.SearchKey)
 
 	healthController := controllers.NewHealthController(healthService)
 	openAIController := controllers.NewOpenAIController(openAIService)
 	inputController := controllers.NewInputController(inputService)
 	searchController := controllers.NewSearchController(searchService)
+	scrapeController := controllers.NewScrapeController(scrapeService)
 
 	routes.Health(server, healthController)
 	routes.OpenAIRoutes(server, openAIController)
 	routes.Input(server, inputController)
 	routes.Search(server, searchController)
+	routes.Scrape(server, scrapeController)
 
 	if err := server.Run(":" + cfg.Port); err != nil {
 		fmt.Println("Error starting server:", err)
