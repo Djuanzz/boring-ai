@@ -4,8 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/Djuanzz/boring-ai/config"
-
 	openai "github.com/sashabaranov/go-openai"
 )
 
@@ -18,11 +16,7 @@ type openAIService struct {
 }
 
 // Constructor untuk OpenAIService dengan OpenRouter
-func NewOpenAIService(cfg config.Config) OpenAIService {
-	clientConfig := openai.DefaultConfig(cfg.OpenAIKey)
-	clientConfig.BaseURL = "https://openrouter.ai/api/v1" // Ganti base URL
-
-	client := openai.NewClientWithConfig(clientConfig)
+func NewOpenAIService(client *openai.Client) OpenAIService {
 	return &openAIService{client: client}
 }
 
@@ -31,7 +25,7 @@ func (o *openAIService) GenerateResponse(prompt string) (string, error) {
 	resp, err := o.client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "openai/gpt-4o-mini", // Ganti model sesuai kebutuhan
+			Model: openai.GPT4o,
 			Messages: []openai.ChatCompletionMessage{
 				{Role: openai.ChatMessageRoleUser, Content: prompt},
 			},

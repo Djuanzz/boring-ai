@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/Djuanzz/boring-ai/config"
 	"github.com/Djuanzz/boring-ai/controllers"
@@ -10,13 +9,6 @@ import (
 	"github.com/Djuanzz/boring-ai/routes"
 	"github.com/Djuanzz/boring-ai/services"
 	"github.com/gin-gonic/gin"
-	"googlemaps.github.io/maps"
-)
-
-var (
-// healthService services.HealthService = services.NewHealthService()
-
-// healthController controllers.HealthController = controllers.NewHealthController(healthService)
 )
 
 func main() {
@@ -27,27 +19,24 @@ func main() {
 	server := gin.Default()
 	server.Use(middleware.CORSMiddleware())
 
-	client, err := maps.NewClient(maps.WithAPIKey(cfg.GMapsKey))
-	if err != nil {
-		log.Fatalf("Failed to create maps client: %v", err)
-		panic(err)
-	}
+	mapsClient := config.NewMapsClient(cfg.GMapsKey)
+	openAIClient := config.NewOpenAIClient(cfg.OpenAIKey)
 
 	healthService := services.NewHealthService()
-	openAIService := services.NewOpenAIService(cfg)
 	inputService := services.NewInputService()
-	searchService := services.NewSearchService(client)
+	openAIService := services.NewOpenAIService(openAIClient)
+	searchService := services.NewSearchService(mapsClient)
 	scrapeService := services.NewScrapeService(cfg.SearchKey)
 
 	healthController := controllers.NewHealthController(healthService)
-	openAIController := controllers.NewOpenAIController(openAIService)
 	inputController := controllers.NewInputController(inputService)
+	openAIController := controllers.NewOpenAIController(openAIService)
 	searchController := controllers.NewSearchController(searchService)
 	scrapeController := controllers.NewScrapeController(scrapeService)
 
 	routes.Health(server, healthController)
-	routes.OpenAIRoutes(server, openAIController)
 	routes.Input(server, inputController)
+	routes.OpenAIRoutes(server, openAIController)
 	routes.Search(server, searchController)
 	routes.Scrape(server, scrapeController)
 
