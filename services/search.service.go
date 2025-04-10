@@ -52,6 +52,7 @@ func (s *searchService) SearchBusiness(req dto.SearchRequest) (map[string]any, e
 	}
 
 	state := map[string]any{
+		"nextPageToken":     resp.NextPageToken,
 		"remainingPlaceIds": placeIDs[1:],
 		"searchOffset":      end,
 	}
