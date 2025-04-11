@@ -5,10 +5,14 @@ import (
 
 	"github.com/Djuanzz/boring-ai/config"
 	"github.com/Djuanzz/boring-ai/controllers"
+	"github.com/Djuanzz/boring-ai/docs"
 	"github.com/Djuanzz/boring-ai/middleware"
 	"github.com/Djuanzz/boring-ai/routes"
 	"github.com/Djuanzz/boring-ai/services"
 	"github.com/gin-gonic/gin"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -16,7 +20,14 @@ func main() {
 
 	cfg := config.LoadEnv()
 
+	docs.SwaggerInfo.Title = "Boring AI API"
+	docs.SwaggerInfo.Description = "This is api documentation for boring ai."
+	docs.SwaggerInfo.Version = "1.16.4"
+	docs.SwaggerInfo.Host = "localhost:5000/api"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	server := gin.Default()
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	server.Use(middleware.CORSMiddleware())
 
 	mapsClient := config.NewMapsClient(cfg.GMapsKey)
