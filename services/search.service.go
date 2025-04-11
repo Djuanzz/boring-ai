@@ -32,11 +32,19 @@ func (s *searchService) SearchBusiness(req dto.SearchRequest) (map[string]any, e
 	}
 
 	resp, err := s.Client.TextSearch(ctx, textRequest)
-	if err != nil || len(resp.Results) == 0 {
-		return nil, fmt.Errorf("no results found or error occurred")
+	if err != nil {
+		return nil, fmt.Errorf("no results found or error occurred: %v", err)
+	}
+
+	if len(resp.Results) == 0 {
+		return nil, fmt.Errorf("no results returned from Google Maps")
 	}
 
 	start := req.SearchOffset
+	if start >= len(resp.Results) {
+		return nil, fmt.Errorf("offset out of range: start=%d, results=%d", start, len(resp.Results))
+	}
+
 	end := start + req.NumberOfLeads
 	if end > len(resp.Results) {
 		end = len(resp.Results)
@@ -68,6 +76,7 @@ func (s *searchService) SearchBusiness(req dto.SearchRequest) (map[string]any, e
 		"state": state,
 		"next":  next,
 	}
+
 	return result, nil
 }
 
@@ -86,6 +95,7 @@ func (s *searchService) GetPlaceDetail(placeID string) (map[string]any, error) {
 			maps.PlaceDetailsFieldMaskUserRatingsTotal,
 			maps.PlaceDetailsFieldMaskOpeningHours,
 			maps.PlaceDetailsFieldMaskTypes,
+			maps.PlaceDetailsFieldMaskReviews,
 		},
 	}
 
@@ -105,6 +115,7 @@ func (s *searchService) GetPlaceDetail(placeID string) (map[string]any, error) {
 		"userRatings":  detailResp.UserRatingsTotal,
 		"openingHours": detailResp.OpeningHours,
 		"types":        detailResp.Types,
+		"reviews":      detailResp.Reviews,
 	}
 
 	return result, nil
